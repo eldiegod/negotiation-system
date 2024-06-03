@@ -79,11 +79,14 @@ function DisputePage({
   const isPartyA = partyId === parties.partyA;
   const lastBid = disputeQuery.data?.bids[0];
 
-  React.useEffect(() => {
-    if (!isPartyA && partyId !== parties.partyB) {
-      router.push(`/dispute/${disputeId}/${parties.partyA}`);
-    }
-  }, [disputeId, isPartyA, partyId, router]);
+  React.useEffect(
+    function redirectIfwrongPartyId() {
+      if (!isPartyA && partyId !== parties.partyB) {
+        router.push(`/dispute/${disputeId}/${parties.partyA}`);
+      }
+    },
+    [disputeId, isPartyA, partyId, router],
+  );
 
   useEventListener(({ event }) => {
     if (isPartyA) {
@@ -110,14 +113,10 @@ function DisputePage({
       }
     } else {
       if (event.type === "BID_PLACED") {
-        toast("New bid placed", {
-          description: "Party A just placed a new bid",
-          action: {
-            label: "Refresh",
-            onClick: () => {
-              void utils.invalidate();
-            },
-          },
+        void utils.invalidate();
+        toast("Party A just placed a new bid", {
+          description:
+            "The new bid is now available for you to accept or reject",
         });
       }
     }
